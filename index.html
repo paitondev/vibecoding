@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Навигация по HTML</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    main {
+      width: min(640px, 100%);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.6rem;
+      font-weight: 650;
+    }
+    p {
+      margin: 0 0 24px;
+      color: var(--muted);
+    }
+    nav {
+      display: grid;
+      gap: 10px;
+    }
+    a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: inherit;
+      text-decoration: none;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+    a:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    a span {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    a small {
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Файлы</h1>
+    <p>Откройте любую страницу из списка.</p>
+    <nav>
+      <a href="cursor.html"><span>cursor.html</span><small>Cursor</small></a>
+      <a href="deepseek.html"><span>deepseek.html</span><small>DeepSeek</small></a>
+      <a href="gigachat.html"><span>gigachat.html</span><small>GigaChat</small></a>
+      <a href="qwen-agent.html"><span>qwen-agent.html</span><small>Qwen Agent</small></a>
+      <a href="qwen-dev-mode.html"><span>qwen-dev-mode.html</span><small>Qwen Dev Mode</small></a>
+      <a href="z-ai.html"><span>z-ai.html</span><small>Z.AI</small></a>
+    </nav>
+  </main>
+</body>
+</html>
