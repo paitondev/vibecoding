@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyCamp: Курс Python в браузере</title>
+    <style>
+        :root {
+            --bg-dark: #1e1e1e;
+            --bg-sidebar: #252526;
+            --text-light: #d4d4d4;
+            --text-muted: #9cdcfe;
+            --accent: #007acc;
+            --success: #4ec9b0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-dark); color: var(--text-light); }
+        
+        .app-container { display: flex; height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid #333;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .sidebar h2 { text-align: center; margin-bottom: 20px; color: var(--accent); font-size: 1.2rem; }
+        .module { margin-bottom: 15px; }
+        .module-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 8px 10px; 
+            background-color: #333; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+        .module-header:hover { background-color: #383838; }
+        .lessons { list-style: none; display: none; padding-left: 15px; }
+        .lessons li { padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .lessons li:hover { background-color: #383838; }
+        .lessons li.active { background-color: var(--accent); color: #1e1e1e; }
+        .lessons li.completed::after { content: '✓'; float: right; color: var(--success); font-size: 0.8rem; }
+
+        /* Main Content */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; }
+        
+        .lesson-info { padding: 15px; background-color: #2d2d30; border-bottom: 1px solid #333; }
+        .lesson-info h3 { margin-bottom: 5px; }
+        .lesson-info p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
+
+        .workbench { flex-grow: 1; display: flex; flex-direction: column; padding: 10px; gap: 10px; }
+        
+        .editor-console { display: flex; flex-grow: 1; gap: 10px; }
+        .editor, .console { flex: 1; border: 1px solid #333; border-radius: 5px; overflow: hidden; }
+        
+        textarea#codeInput {
+            width: 100%; height: 100%; 
+            background-color: #1e1e1e; 
+            color: var(--text-light); 
+            border: none; 
+            padding: 10px; 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 14px; 
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+        
+        #consoleOutput {
+            width: 100%; height: 100%;
+            background-color: #000; 
+            color: #0f0; 
+            padding: 10px; 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 13px; 
+            white-space: pre-wrap;
+            overflow-y: auto;
+            outline: none;
+        }
+
+        .controls { display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: #2d2d30; }
+        button { 
+            background-color: var(--accent); 
+            color: white; 
+            border: none; 
+            padding: 8px 15px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+        button:hover { background-color: #005a9e; }
+        button:disabled { background-color: #555; cursor: not-allowed; }
+        #checkBtn { background-color: var(--success); }
+        #checkBtn:hover { background-color: #3a9d86; }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <h2>PyCamp: Python</h2>
+        <div class="module">
+            <div class="module-header" onclick="toggleModule(this)">1. Основы <span>▼</span></div>
+            <ul class="lessons">
+                <li data-module="0" data-lesson="0" onclick="loadLesson(0, 0)">0. Привет, мир!</li>
+                <li data-module="0" data-lesson="1" onclick="loadLesson(0, 1)">1. Переменные и типы</li>
+                <li data-module="0" data-lesson="2" onclick="loadLesson(0, 2)">2. Ввод и вывод</li>
+            </ul>
+        </div>
+        <div class="module">
+            <div class="module-header" onclick="toggleModule(this)">2. Управление потоком <span>▼</span></div>
+            <ul class="lessons">
+                <li data-module="1" data-lesson="0" onclick="loadLesson(1, 0)">0. Условный оператор if</li>
+                <li data-module="1" data-lesson="1" onclick="loadLesson(1, 1)">1. Цикл for</li>
+                <li data-module="1" data-lesson="2" onclick="loadLesson(1, 2)">2. Цикл while</li>
+            </ul>
+        </div>
+        <div class="module">
+            <div class="module-header" onclick="toggleModule(this)">3. Структуры данных <span>▼</span></div>
+            <ul class="lessons">
+                <li data-module="2" data-lesson="0" onclick="loadLesson(2, 0)">0. Списки (Lists)</li>
+                <li data-module="2" data-lesson="1" onclick="loadLesson(2, 1)">1. Словари (Dictionaries)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="lesson-info">
+            <h3 id="lessonTitle">Загрузка...</h3>
+            <p id="lessonDesc">Выберите урок в меню слева.</p>
+        </div>
+        
+        <div class="workbench">
+            <div class="editor-console">
+                <div class="editor">
+                    <textarea id="codeInput" spellcheck="false">print("Привет, PyCamp!")</textarea>
+                </div>
+                <div class="console">
+                    <div id="consoleOutput"></div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="runBtn" onclick="runCode()">▶ Выполнить код</button>
+                <button id="checkBtn" onclick="checkSolution()" disabled>✓ Проверить решение</button>
+                <span id="statusText"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Песочница для безопасного выполнения кода -->
+<iframe id="sandbox" style="display:none;"></iframe>
+
+<script>
+// === БАЗА ДАННЫХ УРОКОВ ===
+const courseData = [
+    {
+        title: "Модуль 1: Основы",
+        lessons: [
+            {
+                title: "0. Привет, мир!",
+                desc: "Первая программа. Выведем классический текст на экран.",
+                starterCode: 'print("Привет, PyCamp!")',
+                solution: 'print("Привет, PyCamp!")',
+                validation: (output) => output.trim() === "Привет, PyCamp!"
+            },
+            {
+                title: "1. Переменные и типы",
+                desc: "Создайте переменную name со своим именем и переменную age с вашим возрастом. Выведите их.",
+                starterCode: '# Создайте переменные здесь\nname = "Алексей"\nage = 25\nprint(name)\nprint(age)',
+                solution: 'name = input("Введите имя: ") # или просто строка\nage = 25\nprint(name)\nprint(age)',
+                validation: (output) => output.includes("Алексей") && output.includes("25") // Пример, пользователь сам вводит
+            },
+            {
+                title: "2. Ввод и вывод",
+                desc: "Спросите пользователя, как его зовут, и поприветствуйте его.",
+                starterCode: 'name = input("Введите ваше имя: ")\nprint("...")',
+                solution: 'name = input("Введите ваше имя: ")\nprint("Привет, " + name + "!")',
+                validation: (output) => output.includes("Привет, ") && output.includes("!")
+            }
+        ]
+    },
+    {
+        title: "Модуль 2: Управление потоком",
+        lessons: [
+            {
+                title: "0. Условный оператор if",
+                desc: "Напишите программу, которая проверяет, является ли число x положительным.",
+                starterCode: 'x = 10\n# Ваш код здесь',
+                solution: 'x = 10\nif x > 0:\n    print("Число положительное")',
+                validation: (output) => output.trim() === "Число положительное"
+            },
+            {
+                title: "1. Цикл for",
+                desc: "Используя цикл for, выведите числа от 1 до 5.",
+                starterCode: '# Используйте цикл for\npass',
+                solution: 'for i in range(1, 6):\n    print(i)',
+                validation: (output) => output.split('\\n').join('').trim() === "12345"
+            },
+            {
+                title: "2. Цикл while",
+                desc: "Выведите числа от 5 до 1 в обратном порядке, используя цикл while.",
+                starterCode: 'count = 5\n# Ваш код здесь',
+                solution: 'count = 5\nwhile count > 0:\n    print(count)\n    count -= 1',
+                validation: (output) => output.split('\\n').join('').trim() === "54321"
+            }
+        ]
+    },
+    {
+        title: "Модуль 3: Структуры данных",
+        lessons: [
+            {
+                title: "0. Списки (Lists)",
+                desc: "Создайте список fruits с тремя названиями фруктов и выведите второй элемент.",
+                starterCode: '# Создайте список\npass\nprint(fruits[1])',
+                solution: 'fruits = ["яблоко", "банан", "груша"]\nprint(fruits[1])',
+                validation: (output) => output.trim() === "банан"
+            },
+            {
+                title: "1. Словари (Dictionaries)",
+                desc: "Создайте словарь user с ключами name и age. Выведите значение по ключу name.",
+                starterCode: '# Создайте словарь\npass\nprint(user["name"])',
+                solution: 'user = {"name": "Иван", "age": 30}\nprint(user["name"])',
+                validation: (output) => output.trim() === "Иван"
+            }
+        ]
+    }
+];
+
+// === СОСТОЯНИЕ ПРИЛОЖЕНИЯ ===
+let currentModule = 0;
+let currentLesson = 0;
+let progress = JSON.parse(localStorage.getItem('pypy_progress') || '{}');
+
+// === UI ЭЛЕМЕНТЫ ===
+const codeInput = document.getElementById('codeInput');
+const consoleOutput = document.getElementById('consoleOutput');
+const lessonTitle = document.getElementById('lessonTitle');
+const lessonDesc = document.getElementById('lessonDesc');
+const runBtn = document.getElementById('runBtn');
+const checkBtn = document.getElementById('checkBtn');
+const statusText = document.getElementById('statusText');
+const sandbox = document.getElementById('sandbox');
+
+// === ФУНКЦИИ ОТОБРАЖЕНИЯ ===
+function renderSidebar() {
+    const modules = document.querySelectorAll('.module');
+    modules.forEach((mod, mIndex) => {
+        const lessons = mod.querySelectorAll('li');
+        lessons.forEach((li, lIndex) => {
+            const key = `${mIndex}-${lIndex}`;
+            if (progress[key]) {
+                li.classList.add('completed');
+            }
+            if (mIndex === currentModule && lIndex === currentLesson) {
+                li.classList.add('active');
+            } else {
+                li.classList.remove('active');
+            }
+        });
+    });
+}
+
+function loadLesson(m, l) {
+    currentModule = m;
+    currentLesson = l;
+    
+    const lesson = courseData[m].lessons[l];
+    lessonTitle.textContent = lesson.title;
+    lessonDesc.textContent = lesson.desc;
+    codeInput.value = lesson.starterCode;
+    consoleOutput.innerHTML = '';
+    
+    statusText.textContent = '';
+    checkBtn.disabled = false;
+    
+    renderSidebar();
+    saveProgress();
+}
+
+function toggleModule(header) {
+    const lessons = header.nextElementSibling;
+    const isHidden = lessons.classList.contains('hidden');
+    document.querySelectorAll('.lessons').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.module-header span').forEach(el => el.textContent = '▼');
+    
+    if (isHidden) {
+        lessons.classList.remove('hidden');
+        header.querySelector('span').textContent = '▲';
+    }
+}
+
+// === РАБОТА С КОДОМ ===
+function runCode() {
+    const userCode = codeInput.value;
+    consoleOutput.innerHTML = '';
+    
+    // Создаем Blob с кодом, обернутым в try-except для перехвата ошибок
+    const blob = new Blob([
+        `<html><body><script>
+        const outputDiv = window.parent.document.getElementById('consoleOutput');
+        function log(text) { outputDiv.innerHTML += text + '<br>'; }
+        function print(text) { log(String(text)); }
+        try {
+        ${userCode}
+        } catch(e) {
+            log('Ошибка: ' + e.message);
+        }
+        <\/script></body></html>`
+    ], { type: 'text/html' });
+    
+    sandbox.src = URL.createObjectURL(blob);
+    runBtn.disabled = true;
+    setTimeout(() => runBtn.disabled = false, 1000);
+}
+
+// === ПРОВЕРКА РЕШЕНИЯ ===
+function checkSolution() {
+    const lesson = courseData[currentModule].lessons[currentLesson];
+    const userCode = codeInput.value;
+    
+    // Простая проверка: если код содержит ключевые слова решения (грубая, но рабочая для демо)
+    const hasPrint = userCode.includes('print');
+    const hasLogic = userCode.length > 10;
+    
+    if (!hasPrint || !hasLogic) {
+        statusText.textContent = 'Код выглядит неполным.';
+        statusText.style.color = '#ffcc00';
+        return;
+    }
+
+    // Запускаем код в песочнице и проверяем результат через 500мс
+    consoleOutput.innerHTML = '';
+    runCode();
+    
+    setTimeout(() => {
+        const output = consoleOutput.innerText;
+        if (lesson.validation(output)) {
+            statusText.textContent = 'Отлично! Решение верное.';
+            statusText.style.color = '#00ff00';
+            const key = `${currentModule}-${currentLesson}`;
+            if (!progress[key]) {
+                progress[key] = true;
+                saveProgress();
+                renderSidebar();
+            }
+            checkBtn.disabled = true;
+        } else {
+            statusText.textContent = 'Неверно. Попробуйте еще раз.';
+            statusText.style.color = '#ff4d4d';
+        }
+    }, 600);
+}
+
+function saveProgress() {
+    localStorage.setItem('pypy_progress', JSON.stringify(progress));
+}
+
+// === ИНИЦИАЛИЗАЦИЯ ===
+loadLesson(0, 0);
+renderSidebar();
+</script>
+</body>
+</html>

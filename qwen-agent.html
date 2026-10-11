@@ -1,0 +1,2238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyLearn — Бесплатный курс Python</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0a;
+            --bg2: #141414;
+            --bg3: #1e1e1e;
+            --bg4: #2a2a2a;
+            --border: #333;
+            --text: #e0e0e0;
+            --text2: #888;
+            --green: #00d26a;
+            --green2: #00a854;
+            --blue: #3b82f6;
+            --yellow: #f59e0b;
+            --red: #ef4444;
+            --purple: #8b5cf6;
+            --orange: #f97316;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        /* Header */
+        .header {
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .logo { font-size: 22px; font-weight: 800; color: var(--green); letter-spacing: -0.5px; }
+        .logo span { color: var(--text); }
+        .header-center { display: flex; align-items: center; gap: 12px; }
+        .progress-bar-wrap {
+            width: 200px; height: 8px;
+            background: var(--bg4); border-radius: 4px; overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%; background: linear-gradient(90deg, var(--green), var(--green2));
+            border-radius: 4px; transition: width 0.5s ease; width: 0%;
+        }
+        .progress-text { font-size: 13px; color: var(--text2); min-width: 90px; }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .btn-cert {
+            background: linear-gradient(135deg, var(--yellow), var(--orange));
+            color: #000; border: none; padding: 6px 16px; border-radius: 6px;
+            font-weight: 700; font-size: 13px; cursor: pointer; display: none;
+        }
+        .btn-cert:hover { opacity: 0.9; }
+        .menu-toggle {
+            display: none; background: none; border: none; color: var(--text);
+            font-size: 24px; cursor: pointer;
+        }
+        /* Layout */
+        .layout { display: flex; flex: 1; overflow: hidden; }
+        /* Sidebar */
+        .sidebar {
+            width: 300px; background: var(--bg2); border-right: 1px solid var(--border);
+            overflow-y: auto; flex-shrink: 0; transition: transform 0.3s;
+        }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+        .sidebar-header {
+            padding: 16px 20px; border-bottom: 1px solid var(--border);
+            font-size: 13px; color: var(--text2); text-transform: uppercase;
+            letter-spacing: 1px; font-weight: 600;
+        }
+        .section-group { margin-bottom: 4px; }
+        .section-btn {
+            width: 100%; text-align: left; padding: 12px 20px;
+            background: none; border: none; color: var(--text);
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 10px;
+            border-left: 3px solid transparent; transition: all 0.2s;
+        }
+        .section-btn:hover { background: var(--bg3); }
+        .section-btn.active { border-left-color: var(--green); background: var(--bg3); }
+        .section-btn .icon { font-size: 18px; }
+        .section-btn .badge {
+            margin-left: auto; font-size: 11px; color: var(--text2);
+            background: var(--bg4); padding: 2px 8px; border-radius: 10px;
+        }
+        .section-btn .badge.done { background: var(--green); color: #000; }
+        .lesson-list { display: none; }
+        .lesson-list.open { display: block; }
+        .lesson-item {
+            padding: 10px 20px 10px 48px; cursor: pointer;
+            font-size: 13px; color: var(--text2); display: flex;
+            align-items: center; gap: 8px; transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .lesson-item:hover { background: var(--bg3); color: var(--text); }
+        .lesson-item.active { background: rgba(0,210,106,0.1); color: var(--green); border-left-color: var(--green); }
+        .lesson-item .check {
+            width: 18px; height: 18px; border-radius: 50%;
+            border: 2px solid var(--border); display: flex;
+            align-items: center; justify-content: center; font-size: 10px;
+            flex-shrink: 0;
+        }
+        .lesson-item.done .check { background: var(--green); border-color: var(--green); color: #000; }
+        /* Main area */
+        .main { flex: 1; display: flex; overflow: hidden; }
+        /* Lesson panel */
+        .lesson-panel {
+            flex: 1; overflow-y: auto; padding: 32px;
+            min-width: 0;
+        }
+        .lesson-panel::-webkit-scrollbar { width: 6px; }
+        .lesson-panel::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+        .lesson-breadcrumb {
+            font-size: 13px; color: var(--text2); margin-bottom: 8px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .lesson-breadcrumb .sep { color: var(--border); }
+        .lesson-breadcrumb .current { color: var(--green); }
+        .lesson-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+        .lesson-desc { color: var(--text2); margin-bottom: 24px; font-size: 15px; }
+        .lesson-content { line-height: 1.8; font-size: 15px; }
+        .lesson-content h1 { font-size: 22px; margin: 24px 0 12px; color: var(--green); }
+        .lesson-content h2 { font-size: 18px; margin: 20px 0 10px; color: var(--text); }
+        .lesson-content p { margin-bottom: 12px; color: #ccc; }
+        .lesson-content ul { margin: 8px 0 16px 20px; }
+        .lesson-content li { margin-bottom: 6px; color: #ccc; }
+        .lesson-content code {
+            background: var(--bg4); color: var(--yellow); padding: 2px 6px;
+            border-radius: 4px; font-size: 13px; font-family: 'Fira Code', 'Consolas', monospace;
+        }
+        .lesson-content pre {
+            background: var(--bg3); border: 1px solid var(--border);
+            border-radius: 8px; padding: 16px; margin: 12px 0;
+            overflow-x: auto; font-size: 13px; line-height: 1.6;
+        }
+        .lesson-content pre code {
+            background: none; padding: 0; color: var(--green);
+        }
+        .task-box {
+            background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 8px; padding: 16px; margin: 20px 0;
+        }
+        .task-box h3 { color: var(--blue); margin-bottom: 8px; font-size: 14px; }
+        .task-box p { color: #bbb; font-size: 14px; }
+        .lesson-nav { display: flex; justify-content: space-between; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); }
+        .btn-nav {
+            padding: 10px 20px; border-radius: 6px; border: none;
+            font-size: 14px; cursor: pointer; font-weight: 600; transition: all 0.2s;
+        }
+        .btn-prev { background: var(--bg4); color: var(--text); }
+        .btn-prev:hover { background: var(--border); }
+        .btn-next { background: var(--green); color: #000; }
+        .btn-next:hover { background: var(--green2); }
+        /* Editor panel */
+        .editor-panel {
+            width: 480px; background: var(--bg); border-left: 1px solid var(--border);
+            display: flex; flex-direction: column; flex-shrink: 0;
+        }
+        .editor-toolbar {
+            padding: 8px 12px; background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .editor-toolbar-left { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); }
+        .editor-toolbar-right { display: flex; gap: 6px; }
+        .btn-sm {
+            padding: 4px 12px; border-radius: 4px; border: none;
+            font-size: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s;
+        }
+        .btn-hint { background: rgba(245,158,11,0.15); color: var(--yellow); }
+        .btn-hint:hover { background: rgba(245,158,11,0.25); }
+        .hint-box {
+            display: none; padding: 10px 12px; background: rgba(245,158,11,0.08);
+            border-bottom: 1px solid rgba(245,158,11,0.2);
+            font-family: 'Fira Code', monospace; font-size: 12px; color: var(--yellow);
+            white-space: pre-wrap;
+        }
+        .hint-box.show { display: block; }
+        .code-area {
+            flex: 1; position: relative; min-height: 200px;
+        }
+        .code-area textarea {
+            width: 100%; height: 100%; background: var(--bg);
+            color: var(--green); border: none; padding: 16px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px; line-height: 1.6; resize: none;
+            outline: none; tab-size: 4;
+        }
+        .code-area textarea::placeholder { color: #444; }
+        .output-section {
+            border-top: 1px solid var(--border);
+        }
+        .output-header {
+            padding: 6px 12px; background: var(--bg2);
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 12px; color: var(--text2);
+        }
+        .output-status { font-weight: 700; }
+        .output-status.pass { color: var(--green); }
+        .output-status.fail { color: var(--red); }
+        .output-body {
+            padding: 12px; background: #000; min-height: 60px;
+            max-height: 120px; overflow-y: auto;
+            font-family: 'Fira Code', monospace; font-size: 13px;
+            color: #aaa; white-space: pre-wrap;
+        }
+        .editor-actions {
+            padding: 10px 12px; background: var(--bg2);
+            border-top: 1px solid var(--border);
+            display: flex; gap: 8px;
+        }
+        .btn-action {
+            flex: 1; padding: 10px; border: none; border-radius: 6px;
+            font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-run { background: var(--blue); color: #fff; }
+        .btn-run:hover { background: #2563eb; }
+        .btn-check { background: var(--green); color: #000; }
+        .btn-check:hover { background: var(--green2); }
+        .btn-reset { background: var(--bg4); color: var(--text2); flex: 0; padding: 10px 14px; }
+        .btn-reset:hover { background: var(--border); }
+        /* Modal */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85); z-index: 1000;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: var(--bg2); border-radius: 16px; padding: 40px;
+            max-width: 500px; width: 100%; text-align: center;
+            border: 2px solid var(--yellow);
+        }
+        .modal .trophy { font-size: 64px; margin-bottom: 16px; }
+        .modal h2 { color: var(--yellow); font-size: 24px; margin-bottom: 8px; }
+        .modal p { color: var(--text2); margin-bottom: 20px; }
+        .cert-box {
+            background: var(--bg); border: 1px solid var(--yellow);
+            border-radius: 8px; padding: 24px; margin: 20px 0;
+        }
+        .cert-box h3 { color: var(--yellow); font-size: 18px; margin-bottom: 4px; }
+        .cert-box .cert-sub { color: var(--text2); font-size: 13px; }
+        .cert-box .cert-course { font-size: 24px; font-weight: 800; margin: 16px 0; }
+        .cert-box .cert-date { color: var(--text2); font-size: 12px; }
+        .btn-close-modal {
+            background: var(--yellow); color: #000; border: none;
+            padding: 10px 32px; border-radius: 6px; font-weight: 700;
+            font-size: 14px; cursor: pointer; margin-top: 12px;
+        }
+        /* Welcome screen */
+        .welcome { text-align: center; padding: 60px 20px; }
+        .welcome h1 { font-size: 48px; margin-bottom: 16px; }
+        .welcome h1 span { color: var(--green); }
+        .welcome p { color: var(--text2); font-size: 18px; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .welcome-stats { display: flex; justify-content: center; gap: 40px; margin-bottom: 40px; }
+        .stat { text-align: center; }
+        .stat-num { font-size: 36px; font-weight: 800; color: var(--green); }
+        .stat-label { font-size: 13px; color: var(--text2); }
+        .btn-start {
+            background: var(--green); color: #000; border: none;
+            padding: 14px 40px; border-radius: 8px; font-size: 16px;
+            font-weight: 700; cursor: pointer;
+        }
+        .btn-start:hover { background: var(--green2); }
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .editor-panel { width: 380px; }
+        }
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            .sidebar {
+                position: fixed; left: 0; top: 56px; bottom: 0;
+                z-index: 50; transform: translateX(-100%);
+            }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay {
+                display: none; position: fixed; inset: 0; top: 56px;
+                background: rgba(0,0,0,0.5); z-index: 49;
+            }
+            .sidebar-overlay.show { display: block; }
+            .main { flex-direction: column; }
+            .editor-panel { width: 100%; height: 50%; border-left: none; border-top: 1px solid var(--border); }
+            .lesson-panel { padding: 20px; }
+            .header-center { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="logo">Py<span>Learn</span></div>
+    </div>
+    <div class="header-center">
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+        <span class="progress-text" id="progressText">0 / 0 уроков</span>
+    </div>
+    <div class="header-right">
+        <button class="btn-cert" id="btnCert" onclick="showCertificate()">🏆 Сертификат</button>
+    </div>
+</header>
+
+<!-- Sidebar overlay for mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- Layout -->
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">📚 Программа курса</div>
+        <div id="sidebarContent"></div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+        <!-- Lesson Panel -->
+        <div class="lesson-panel" id="lessonPanel">
+            <!-- Welcome or lesson content rendered here -->
+        </div>
+
+        <!-- Editor Panel -->
+        <div class="editor-panel">
+            <div class="editor-toolbar">
+                <div class="editor-toolbar-left">⚡ Редактор Python</div>
+                <div class="editor-toolbar-right">
+                    <button class="btn-sm btn-hint" onclick="toggleHint()">💡 Подсказка</button>
+                </div>
+            </div>
+            <div class="hint-box" id="hintBox"></div>
+            <div class="code-area">
+                <textarea id="codeEditor" placeholder="# Напишите код здесь..." spellcheck="false"></textarea>
+            </div>
+            <div class="output-section">
+                <div class="output-header">
+                    <span>📤 Вывод</span>
+                    <span class="output-status" id="outputStatus"></span>
+                </div>
+                <div class="output-body" id="outputBody">Нажмите «Запустить» для выполнения кода...</div>
+            </div>
+            <div class="editor-actions">
+                <button class="btn-action btn-run" onclick="runCode()">▶ Запустить</button>
+                <button class="btn-action btn-check" onclick="checkAnswer()">✓ Проверить</button>
+                <button class="btn-action btn-reset" onclick="resetCode()" title="Сбросить">↺</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- React root (hidden, required by Vite) -->
+<div id="root" style="display:none"></div>
+<script type="module" src="/src/main.tsx"></script>
+
+<!-- Certificate Modal -->
+<div class="modal-overlay" id="certModal">
+    <div class="modal">
+        <div class="trophy">🏆</div>
+        <h2>Поздравляем!</h2>
+        <p>Вы успешно завершили полный курс Python на PyLearn!</p>
+        <div class="cert-box">
+            <h3>СЕРТИФИКАТ</h3>
+            <div class="cert-sub">о прохождении курса</div>
+            <div class="cert-course">Python Programming</div>
+            <div class="cert-date" id="certDate"></div>
+        </div>
+        <button class="btn-close-modal" onclick="closeCertModal()">Закрыть</button>
+    </div>
+</div>
+
+<script>
+// ==================== COURSE DATA ====================
+const COURSE = [
+  {
+    id: "basics", title: "Основы Python", icon: "🐍",
+    lessons: [
+      {
+        id: "hello", title: "Привет, мир!",
+        desc: "Ваша первая программа на Python",
+        content: `# Добро пожаловать в мир Python! 🐍
+
+Python — один из самых популярных языков программирования. Он используется в веб-разработке, науке о данных, ИИ и автоматизации.
+
+## Функция print()
+
+Функция \`print()\` выводит текст на экран:
+
+\`\`\`python
+print("Hello, World!")
+\`\`\`
+
+Можно использовать как двойные \`"\`, так и одинарные \`'\` кавычки.
+
+## Задание
+
+Напишите программу, которая выводит: \`Hello, World!\``,
+        code: '# Напишите ваш код здесь\n',
+        expected: 'Hello, World!',
+        hint: 'print("Hello, World!")'
+      },
+      {
+        id: "variables", title: "Переменные",
+        desc: "Хранение данных в переменных",
+        content: `# Переменные в Python
+
+Переменная — контейнер для хранения данных. В Python не нужно указывать тип.
+
+## Создание переменных
+
+\`\`\`python
+name = "Алиса"
+age = 25
+height = 1.68
+is_student = True
+\`\`\`
+
+## Типы данных
+
+\`\`\`python
+text = "Привет"      # str
+number = 42          # int
+decimal = 3.14       # float
+flag = True          # bool
+\`\`\`
+
+## Задание
+
+Создайте переменную \`name\` со значением \`"Python"\` и выведите её.`,
+        code: '# Создайте переменную name и выведите её\n',
+        expected: 'Python',
+        hint: 'name = "Python"\nprint(name)'
+      },
+      {
+        id: "types", title: "Типы данных",
+        desc: "Строки, числа, списки и словари",
+        content: `# Типы данных
+
+## Строки (str)
+\`\`\`python
+greeting = "Привет"
+full = greeting + " Мир"
+\`\`\`
+
+## Числа (int, float)
+\`\`\`python
+a = 10
+b = 3.14
+\`\`\`
+
+## Списки (list)
+\`\`\`python
+fruits = ["яблоко", "банан", "вишня"]
+print(fruits[0])  # "яблоко"
+\`\`\`
+
+## Словари (dict)
+\`\`\`python
+person = {"name": "Алиса", "age": 25}
+print(person["name"])
+\`\`\`
+
+## Задание
+
+Создайте список чисел \`[1, 2, 3]\` и выведите его.`,
+        code: '# Создайте список и выведите его\n',
+        expected: '[1, 2, 3]',
+        hint: 'numbers = [1, 2, 3]\nprint(numbers)'
+      },
+      {
+        id: "fstring", title: "f-строки",
+        desc: "Форматированный вывод",
+        content: `# f-строки
+
+f-строки — удобный способ вставки переменных в текст:
+
+\`\`\`python
+name = "Мир"
+print(f"Привет, {name}!")
+\`\`\`
+
+## Форматирование чисел
+
+\`\`\`python
+pi = 3.14159
+print(f"Pi = {pi:.2f}")  # Pi = 3.14
+\`\`\`
+
+## Задание
+
+Выведите \`Python is awesome\` используя f-строку с переменной \`lang = "Python"\`.`,
+        code: 'lang = "Python"\n# Используйте f-строку\n',
+        expected: 'Python is awesome',
+        hint: 'print(f"{lang} is awesome")'
+      },
+      {
+        id: "comments", title: "Комментарии",
+        desc: "Документирование кода",
+        content: `# Комментарии
+
+Комментарии объясняют код и игнорируются интерпретатором.
+
+## Однострочные
+\`\`\`python
+# Это комментарий
+print("Hello")  # И это тоже
+\`\`\`
+
+## Задание
+
+Напишите код, который выводит \`42\`, добавив комментарий перед print.`,
+        code: '# Добавьте комментарий и выведите число 42\n',
+        expected: '42',
+        hint: '# Это число 42\nprint(42)'
+      }
+    ]
+  },
+  {
+    id: "operators", title: "Операторы", icon: "🔢",
+    lessons: [
+      {
+        id: "arithmetic", title: "Арифметические операторы",
+        desc: "Сложение, вычитание, умножение, деление",
+        content: `# Арифметические операторы
+
+\`\`\`python
+a = 10
+b = 3
+print(a + b)   # 13
+print(a - b)   # 7
+print(a * b)   # 30
+print(a / b)   # 3.333...
+print(a // b)  # 3
+print(a % b)   # 1
+print(a ** b)  # 1000
+\`\`\`
+
+## Задание
+
+Вычислите и выведите: \`15\` в степени \`2\`.`,
+        code: '# Вычислите 15 в степени 2\n',
+        expected: '225',
+        hint: 'print(15 ** 2)'
+      },
+      {
+        id: "comparison", title: "Операторы сравнения",
+        desc: "Сравнение значений",
+        content: `# Операторы сравнения
+
+Возвращают \`True\` или \`False\`:
+
+\`\`\`python
+a = 5
+b = 10
+print(a == b)   # False
+print(a != b)   # True
+print(a > b)    # False
+print(a < b)    # True
+print(a >= 5)   # True
+print(a <= 4)   # False
+\`\`\`
+
+## Задание
+
+Выведите результат: \`7\` больше \`3\`.`,
+        code: '# Сравните 7 и 3\n',
+        expected: 'True',
+        hint: 'print(7 > 3)'
+      },
+      {
+        id: "logical", title: "Логические операторы",
+        desc: "and, or, not",
+        content: `# Логические операторы
+
+\`\`\`python
+print(True and True)    # True
+print(True and False)   # False
+print(True or False)    # True
+print(not True)         # False
+\`\`\`
+
+## Комбинирование
+\`\`\`python
+age = 25
+has_id = True
+can_enter = age >= 18 and has_id
+print(can_enter)  # True
+\`\`\`
+
+## Задание
+
+Выведите: \`10\` больше \`5\` И \`10\` меньше \`20\`.`,
+        code: '# Используйте оператор and\n',
+        expected: 'True',
+        hint: 'print(10 > 5 and 10 < 20)'
+      }
+    ]
+  },
+  {
+    id: "control", title: "Управление потоком", icon: "🔀",
+    lessons: [
+      {
+        id: "ifelse", title: "Условия if/else",
+        desc: "Ветвление программы",
+        content: `# Условные конструкции
+
+## if/else
+\`\`\`python
+age = 15
+if age >= 18:
+    print("Взрослый")
+else:
+    print("Ребёнок")
+\`\`\`
+
+## if/elif/else
+\`\`\`python
+score = 85
+if score >= 90:
+    print("Отлично")
+elif score >= 70:
+    print("Хорошо")
+else:
+    print("Нормально")
+\`\`\`
+
+## Задание
+
+Если \`x = 10\` чётное — выведите \`even\`, иначе \`odd\`.`,
+        code: 'x = 10\n# Проверьте чётность\n',
+        expected: 'even',
+        hint: 'x = 10\nif x % 2 == 0:\n    print("even")\nelse:\n    print("odd")'
+      },
+      {
+        id: "forloop", title: "Цикл for",
+        desc: "Итерация по последовательностям",
+        content: `# Цикл for
+
+\`\`\`python
+for i in range(5):
+    print(i)  # 0, 1, 2, 3, 4
+
+for i in range(1, 6):
+    print(i)  # 1, 2, 3, 4, 5
+
+for i in range(0, 10, 2):
+    print(i)  # 0, 2, 4, 6, 8
+\`\`\`
+
+## Задание
+
+Выведите числа от 1 до 5, каждое на новой строке.`,
+        code: '# Выведите числа от 1 до 5\n',
+        expected: '1\n2\n3\n4\n5',
+        hint: 'for i in range(1, 6):\n    print(i)'
+      },
+      {
+        id: "whileloop", title: "Цикл while",
+        desc: "Цикл с условием",
+        content: `# Цикл while
+
+\`\`\`python
+count = 0
+while count < 5:
+    print(count)
+    count += 1
+\`\`\`
+
+## break и continue
+\`\`\`python
+i = 0
+while i < 10:
+    i += 1
+    if i % 2 == 0:
+        continue
+    print(i)  # 1, 3, 5, 7, 9
+\`\`\`
+
+## Задание
+
+Используя while, выведите числа от 10 до 1 (обратный отсчёт).`,
+        code: '# Обратный отсчёт от 10 до 1\n',
+        expected: '10\n9\n8\n7\n6\n5\n4\n3\n2\n1',
+        hint: 'count = 10\nwhile count >= 1:\n    print(count)\n    count -= 1'
+      },
+      {
+        id: "nested", title: "Вложенные циклы",
+        desc: "Циклы внутри циклов",
+        content: `# Вложенные циклы
+
+\`\`\`python
+for i in range(1, 4):
+    for j in range(1, 4):
+        print(f"{i}*{j}={i*j}")
+\`\`\`
+
+## Паттерны
+\`\`\`python
+for i in range(1, 6):
+    print("*" * i)
+\`\`\`
+
+## Задание
+
+Выведите прямоугольник 3x5 из звёздочек.`,
+        code: '# Прямоугольник из звёзд 3x5\n',
+        expected: '*****\n*****\n*****',
+        hint: 'for i in range(3):\n    print("*" * 5)'
+      }
+    ]
+  },
+  {
+    id: "functions", title: "Функции", icon: "⚡",
+    lessons: [
+      {
+        id: "deffunc", title: "Определение функций",
+        desc: "Создание собственных функций",
+        content: `# Функции
+
+\`\`\`python
+def greet(name):
+    print(f"Привет, {name}!")
+
+greet("Алиса")
+\`\`\`
+
+## Возврат значения
+\`\`\`python
+def add(a, b):
+    return a + b
+
+result = add(3, 5)
+print(result)  # 8
+\`\`\`
+
+## Значения по умолчанию
+\`\`\`python
+def greet(name, greeting="Привет"):
+    print(f"{greeting}, {name}!")
+\`\`\`
+
+## Задание
+
+Создайте функцию \`square(n)\`, возвращающую квадрат числа. Выведите \`square(7)\`.`,
+        code: '# Создайте функцию square и выведите square(7)\n',
+        expected: '49',
+        hint: 'def square(n):\n    return n * n\n\nprint(square(7))'
+      },
+      {
+        id: "lambda", title: "Lambda-функции",
+        desc: "Анонимные функции",
+        content: `# Lambda-функции
+
+\`\`\`python
+add = lambda a, b: a + b
+print(add(3, 5))  # 8
+\`\`\`
+
+## С map()
+\`\`\`python
+numbers = [1, 2, 3, 4, 5]
+squared = list(map(lambda x: x**2, numbers))
+print(squared)  # [1, 4, 9, 16, 25]
+\`\`\`
+
+## С filter()
+\`\`\`python
+nums = [1, 2, 3, 4, 5, 6]
+evens = list(filter(lambda x: x % 2 == 0, nums))
+print(evens)  # [2, 4, 6]
+\`\`\`
+
+## Задание
+
+Создайте lambda \`double\`, удваивающую число. Выведите \`double(21)\`.`,
+        code: '# Создайте lambda double\n',
+        expected: '42',
+        hint: 'double = lambda x: x * 2\nprint(double(21))'
+      },
+      {
+        id: "recursion", title: "Рекурсия",
+        desc: "Функции, вызывающие сами себя",
+        content: `# Рекурсия
+
+\`\`\`python
+def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+print(factorial(5))  # 120
+\`\`\`
+
+## Числа Фибоначчи
+\`\`\`python
+def fib(n):
+    if n <= 1:
+        return n
+    return fib(n-1) + fib(n-2)
+\`\`\`
+
+## Задание
+
+Напишите рекурсивную \`sum_to(n)\` — сумму от 1 до n. Выведите \`sum_to(10)\`.`,
+        code: '# Рекурсивная сумма от 1 до n\n',
+        expected: '55',
+        hint: 'def sum_to(n):\n    if n <= 1:\n        return n\n    return n + sum_to(n - 1)\n\nprint(sum_to(10))'
+      }
+    ]
+  },
+  {
+    id: "datastruct", title: "Структуры данных", icon: "📊",
+    lessons: [
+      {
+        id: "lists", title: "Списки",
+        desc: "Упорядоченные изменяемые коллекции",
+        content: `# Списки (list)
+
+\`\`\`python
+fruits = ["яблоко", "банан", "вишня"]
+print(fruits[0])    # "яблоко"
+print(fruits[-1])   # "вишня"
+\`\`\`
+
+## Методы
+\`\`\`python
+fruits.append("груша")
+fruits.remove("банан")
+fruits.sort()
+\`\`\`
+
+## List comprehension
+\`\`\`python
+squares = [x**2 for x in range(5)]
+# [0, 1, 4, 9, 16]
+\`\`\`
+
+## Задание
+
+Создайте список квадратов от 1 до 5 и выведите.`,
+        code: '# Список квадратов от 1 до 5\n',
+        expected: '[1, 4, 9, 16, 25]',
+        hint: 'squares = [x**2 for x in range(1, 6)]\nprint(squares)'
+      },
+      {
+        id: "tuples", title: "Кортежи",
+        desc: "Неизменяемые последовательности",
+        content: `# Кортежи (tuple)
+
+\`\`\`python
+point = (3, 4)
+colors = ("красный", "зелёный", "синий")
+\`\`\`
+
+## Распаковка
+\`\`\`python
+x, y = point
+print(x, y)  # 3 4
+\`\`\`
+
+## Задание
+
+Создайте кортеж \`(1, 2, 3)\` и выведите второй элемент.`,
+        code: '# Кортеж и второй элемент\n',
+        expected: '2',
+        hint: 't = (1, 2, 3)\nprint(t[1])'
+      },
+      {
+        id: "dicts", title: "Словари",
+        desc: "Пары ключ-значение",
+        content: `# Словари (dict)
+
+\`\`\`python
+person = {"name": "Алиса", "age": 25}
+print(person["name"])  # "Алиса"
+person["email"] = "a@b.c"
+\`\`\`
+
+## Перебор
+\`\`\`python
+for key, value in person.items():
+    print(f"{key}: {value}")
+\`\`\`
+
+## Задание
+
+Создайте словарь \`{"a": 1, "b": 2, "c": 3}\` и выведите значение \`"b"\`.`,
+        code: '# Словарь и значение "b"\n',
+        expected: '2',
+        hint: 'd = {"a": 1, "b": 2, "c": 3}\nprint(d["b"])'
+      },
+      {
+        id: "sets", title: "Множества",
+        desc: "Уникальные элементы",
+        content: `# Множества (set)
+
+\`\`\`python
+a = {1, 2, 3, 4}
+b = {3, 4, 5, 6}
+
+print(a | b)   # объединение
+print(a & b)   # пересечение: {3, 4}
+print(a - b)   # разность: {1, 2}
+\`\`\`
+
+## Задание
+
+Найдите пересечение \`\`\`{1,2,3,4}\`\`\` и \`\`\`{3,4,5,6}\`\`\`, выведите отсортированный список.`,
+        code: '# Пересечение двух множеств\n',
+        expected: '[3, 4]',
+        hint: 'a = {1, 2, 3, 4}\nb = {3, 4, 5, 6}\nprint(sorted(a & b))'
+      }
+    ]
+  },
+  {
+    id: "strings", title: "Строки", icon: "📝",
+    lessons: [
+      {
+        id: "strmethods", title: "Методы строк",
+        desc: "Основные методы работы со строками",
+        content: `# Методы строк
+
+\`\`\`python
+text = "  Hello, World!  "
+text.upper()       # "  HELLO, WORLD!  "
+text.lower()       # "  hello, world!  "
+text.strip()       # "Hello, World!"
+text.replace("Hello", "Hi")
+text.split(",")
+text.find("World")  # 9
+\`\`\`
+
+## Задание
+
+Дана строка \`"hello world"\`. Выведите в верхнем регистре.`,
+        code: 'text = "hello world"\n# В верхний регистр\n',
+        expected: 'HELLO WORLD',
+        hint: 'print(text.upper())'
+      },
+      {
+        id: "slicing", title: "Срезы строк",
+        desc: "Извлечение частей строки",
+        content: `# Срезы строк
+
+\`\`\`python
+text = "Python"
+text[0]      # "P"
+text[-1]     # "n"
+text[0:3]    # "Pyt"
+text[2:]     # "thon"
+text[::-1]   # "nohtyP" — реверс
+\`\`\`
+
+## Задание
+
+Выведите строку \`"Python"\` в обратном порядке.`,
+        code: 'text = "Python"\n# Реверс строки\n',
+        expected: 'nohtyP',
+        hint: 'print(text[::-1])'
+      }
+    ]
+  },
+  {
+    id: "oop", title: "ООП", icon: "🏗️",
+    lessons: [
+      {
+        id: "classes", title: "Классы и объекты",
+        desc: "Основы ООП",
+        content: `# Классы
+
+\`\`\`python
+class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def bark(self):
+        print(f"{self.name}: Гав!")
+
+my_dog = Dog("Рекс", 3)
+my_dog.bark()
+\`\`\`
+
+## Задание
+
+Создайте класс \`Car\` с методом \`honk()\`, выводящим \`Beep!\`. Создайте объект и вызовите \`honk()\`.`,
+        code: '# Создайте класс Car\n',
+        expected: 'Beep!',
+        hint: 'class Car:\n    def honk(self):\n        print("Beep!")\n\ncar = Car()\ncar.honk()'
+      },
+      {
+        id: "inheritance", title: "Наследование",
+        desc: "Дочерние классы",
+        content: `# Наследование
+
+\`\`\`python
+class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        print(f"{self.name} издаёт звук")
+
+class Dog(Animal):
+    def speak(self):
+        print(f"{self.name}: Гав!")
+
+dog = Dog("Рекс")
+dog.speak()
+\`\`\`
+
+## Задание
+
+Создайте \`Shape\` с \`area()\` → 0 и \`Square\` с \`area()\` → сторона². Выведите площадь квадрата со стороной 5.`,
+        code: '# Shape и Square\n',
+        expected: '25',
+        hint: 'class Shape:\n    def area(self):\n        return 0\n\nclass Square(Shape):\n    def __init__(self, side):\n        self.side = side\n    def area(self):\n        return self.side ** 2\n\nprint(Square(5).area())'
+      }
+    ]
+  },
+  {
+    id: "exceptions", title: "Исключения", icon: "🛡️",
+    lessons: [
+      {
+        id: "tryexcept", title: "try/except",
+        desc: "Обработка ошибок",
+        content: `# Обработка исключений
+
+\`\`\`python
+try:
+    result = 10 / 0
+except ZeroDivisionError:
+    print("Деление на ноль!")
+\`\`\`
+
+## Несколько except
+\`\`\`python
+try:
+    number = int("abc")
+except ValueError:
+    print("Неверное значение")
+except TypeError:
+    print("Неверный тип")
+\`\`\`
+
+## finally
+\`\`\`python
+try:
+    f = open("file.txt")
+except FileNotFoundError:
+    print("Файл не найден")
+finally:
+    print("Выполняется всегда")
+\`\`\`
+
+## Задание
+
+Попытайтесь преобразовать \`"hello"\` в число и выведите \`Error\` при неудаче.`,
+        code: '# Обработайте ошибку\n',
+        expected: 'Error',
+        hint: 'try:\n    int("hello")\nexcept ValueError:\n    print("Error")'
+      }
+    ]
+  },
+  {
+    id: "modules", title: "Модули", icon: "📦",
+    lessons: [
+      {
+        id: "math", title: "Модуль math",
+        desc: "Математические функции",
+        content: `# Модуль math
+
+\`\`\`python
+import math
+
+print(math.pi)        # 3.14159...
+print(math.sqrt(16))  # 4.0
+print(math.ceil(4.2)) # 5
+print(math.floor(4.8)) # 4
+print(math.factorial(5)) # 120
+\`\`\`
+
+## Задание
+
+Выведите квадратный корень из 144.`,
+        code: 'import math\n# Квадратный корень из 144\n',
+        expected: '12.0',
+        hint: 'print(math.sqrt(144))'
+      },
+      {
+        id: "random", title: "Модуль random",
+        desc: "Случайные числа",
+        content: `# Модуль random
+
+\`\`\`python
+import random
+
+random.random()          # 0.0 до 1.0
+random.randint(1, 10)    # Целое от 1 до 10
+random.choice([1, 2, 3]) # Случайный элемент
+\`\`\`
+
+## Фиксация seed
+\`\`\`python
+random.seed(42)
+print(random.randint(1, 100))
+\`\`\`
+
+## Задание
+
+Установите \`seed(0)\` и выведите \`random.randint(1, 100)\`.`,
+        code: 'import random\n# seed и число\n',
+        expected: '50',
+        hint: 'random.seed(0)\nprint(random.randint(1, 100))'
+      }
+    ]
+  },
+  {
+    id: "advanced", title: "Продвинутый Python", icon: "🚀",
+    lessons: [
+      {
+        id: "decorators", title: "Декораторы",
+        desc: "Модификация функций",
+        content: `# Декораторы
+
+\`\`\`python
+def my_decorator(func):
+    def wrapper():
+        print("До")
+        func()
+        print("После")
+    return wrapper
+
+@my_decorator
+def say_hello():
+    print("Привет!")
+\`\`\`
+
+## Задание
+
+Создайте декоратор, делающий вывод заглавными. Примените к функции, возвращающей \`"hello"\`.`,
+        code: '# Декоратор uppercase\n',
+        expected: 'HELLO',
+        hint: 'def upper(func):\n    def wrapper():\n        print(func().upper())\n    return wrapper\n\n@upper\ndef greet():\n    return "hello"\n\ngreet()'
+      },
+      {
+        id: "generators", title: "Генераторы",
+        desc: "yield и ленивые итераторы",
+        content: `# Генераторы
+
+\`\`\`python
+def count_up(n):
+    i = 1
+    while i <= n:
+        yield i
+        i += 1
+
+for num in count_up(5):
+    print(num)
+\`\`\`
+
+## Генераторные выражения
+\`\`\`python
+squares = (x**2 for x in range(5))
+\`\`\`
+
+## Задание
+
+Создайте генератор \`evens(n)\` — чётные числа до n. Выведите для \`evens(10)\`.`,
+        code: '# Генератор чётных чисел\n',
+        expected: '2\n4\n6\n8\n10',
+        hint: 'def evens(n):\n    for i in range(2, n+1, 2):\n        yield i\n\nfor num in evens(10):\n    print(num)'
+      }
+    ]
+  }
+];
+
+// ==================== STATE ====================
+let currentSection = 0;
+let currentLesson = 0;
+let completed = new Set(JSON.parse(localStorage.getItem('pylearn_done') || '[]'));
+let hintVisible = false;
+
+// ==================== PYTHON SIMULATOR ====================
+function simulatePython(code) {
+    const output = [];
+    const vars = {};
+    const funcs = {};
+    const classes = {};
+    let seededRand = mulberry32(42);
+
+    function mulberry32(a) {
+        return function() {
+            a |= 0; a = a + 0x6D2B79F5 | 0;
+            let t = Math.imul(a ^ a >>> 15, 1 | a);
+            t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        }
+    }
+
+    function fmt(v) {
+        if (v === undefined || v === null) return 'None';
+        if (v === true) return 'True';
+        if (v === false) return 'False';
+        if (Array.isArray(v)) return '[' + v.map(fmt).join(', ') + ']';
+        if (v instanceof Set) return '{' + [...v].map(fmt).join(', ') + '}';
+        if (typeof v === 'object' && v.__type === 'dict') {
+            const entries = Object.entries(v.data).map(([k,val]) => `'${k}': ${fmt(val)}`);
+            return '{' + entries.join(', ') + '}';
+        }
+        return String(v);
+    }
+
+    function splitArgs(s, delim) {
+        const res = []; let cur = ''; let depth = 0; let inStr = false; let strCh = '';
+        for (let i = 0; i < s.length; i++) {
+            const c = s[i];
+            if (inStr) { cur += c; if (c === strCh && s[i-1] !== '\\') inStr = false; }
+            else if (c === '"' || c === "'") { inStr = true; strCh = c; cur += c; }
+            else if ('([{'.includes(c)) { depth++; cur += c; }
+            else if (')]}'.includes(c)) { depth--; cur += c; }
+            else if (s.substr(i, delim.length) === delim && depth === 0) { res.push(cur); cur = ''; i += delim.length - 1; }
+            else cur += c;
+        }
+        if (cur.trim()) res.push(cur);
+        return res;
+    }
+
+    function evalExpr(expr) {
+        expr = expr.trim();
+        if (!expr) return undefined;
+
+        // None, True, False
+        if (expr === 'None') return undefined;
+        if (expr === 'True') return true;
+        if (expr === 'False') return false;
+
+        // Strings
+        if ((expr.startsWith('"') && expr.endsWith('"')) || (expr.startsWith("'") && expr.endsWith("'"))) {
+            return expr.slice(1, -1);
+        }
+
+        // Numbers
+        if (/^-?\d+\.\d+$/.test(expr)) return parseFloat(expr);
+        if (/^-?\d+$/.test(expr)) return parseInt(expr);
+
+        // f-strings
+        if ((expr.startsWith('f"') && expr.endsWith('"')) || (expr.startsWith("f'") && expr.endsWith("'"))) {
+            const inner = expr.slice(2, -1);
+            return inner.replace(/\{([^}]+)\}/g, (_, e) => {
+                const fmtMatch = e.match(/^(.+):(.+)$/);
+                if (fmtMatch) {
+                    const val = evalExpr(fmtMatch[1]);
+                    const spec = fmtMatch[2];
+                    const decMatch = spec.match(/\.(\d+)f/);
+                    if (decMatch) return Number(val).toFixed(parseInt(decMatch[1]));
+                    return String(val);
+                }
+                return fmt(evalExpr(e));
+            });
+        }
+
+        // Lists
+        if (expr.startsWith('[') && expr.endsWith(']')) {
+            const inner = expr.slice(1, -1).trim();
+            if (!inner) return [];
+            if (inner.includes(' for ')) return evalListComp(inner);
+            return splitArgs(inner, ',').map(a => evalExpr(a.trim()));
+        }
+
+        // Tuples
+        if (expr.startsWith('(') && expr.endsWith(')') && !expr.includes(' for ')) {
+            const inner = expr.slice(1, -1).trim();
+            if (!inner) return [];
+            const parts = splitArgs(inner, ',');
+            if (parts.length === 1) return evalExpr(parts[0]);
+            return parts.map(a => evalExpr(a.trim()));
+        }
+
+        // Sets
+        if (expr.startsWith('{') && expr.endsWith('}') && !expr.includes(':')) {
+            const inner = expr.slice(1, -1).trim();
+            if (!inner) return new Set();
+            return new Set(splitArgs(inner, ',').map(a => evalExpr(a.trim())));
+        }
+
+        // Dicts
+        if (expr.startsWith('{') && expr.endsWith('}') && expr.includes(':')) {
+            const inner = expr.slice(1, -1).trim();
+            const d = { __type: 'dict', data: {} };
+            if (inner) {
+                splitArgs(inner, ',').forEach(pair => {
+                    const colonIdx = pair.indexOf(':');
+                    const k = evalExpr(pair.slice(0, colonIdx).trim());
+                    const v = evalExpr(pair.slice(colonIdx + 1).trim());
+                    d.data[k] = v;
+                });
+            }
+            return d;
+        }
+
+        // not
+        if (expr.startsWith('not ')) return !evalExpr(expr.slice(4));
+
+        // sorted()
+        if (expr.startsWith('sorted(') && expr.endsWith(')')) {
+            const v = evalExpr(expr.slice(7, -1));
+            if (v instanceof Set) return [...v].sort((a,b) => a - b);
+            if (Array.isArray(v)) return [...v].sort((a,b) => (typeof a === 'number' && typeof b === 'number') ? a - b : String(a).localeCompare(String(b)));
+            return v;
+        }
+
+        // list()
+        if (expr.startsWith('list(') && expr.endsWith(')')) {
+            const v = evalExpr(expr.slice(5, -1));
+            if (v instanceof Set) return [...v];
+            return Array.isArray(v) ? v : [v];
+        }
+
+        // len()
+        if (expr.startsWith('len(') && expr.endsWith(')')) {
+            const v = evalExpr(expr.slice(4, -1));
+            if (typeof v === 'string' || Array.isArray(v)) return v.length;
+            if (v instanceof Set) return v.size;
+            if (v && v.__type === 'dict') return Object.keys(v.data).length;
+            return 0;
+        }
+
+        // range()
+        if (expr.startsWith('range(') && expr.endsWith(')')) {
+            const args = splitArgs(expr.slice(6, -1), ',').map(a => evalExpr(a.trim()));
+            let start = 0, end = 0, step = 1;
+            if (args.length === 1) end = args[0];
+            else if (args.length === 2) { start = args[0]; end = args[1]; }
+            else { start = args[0]; end = args[1]; step = args[2]; }
+            const r = [];
+            for (let i = start; step > 0 ? i < end : i > end; i += step) r.push(i);
+            return r;
+        }
+
+        // int(), float(), str()
+        if (expr.startsWith('int(') && expr.endsWith(')')) return parseInt(evalExpr(expr.slice(4, -1)));
+        if (expr.startsWith('float(') && expr.endsWith(')')) return parseFloat(evalExpr(expr.slice(6, -1)));
+        if (expr.startsWith('str(') && expr.endsWith(')')) return String(evalExpr(expr.slice(4, -1)));
+        if (expr.startsWith('abs(') && expr.endsWith(')')) return Math.abs(evalExpr(expr.slice(4, -1)));
+
+        // map()
+        if (expr.startsWith('list(map(')) {
+            const inner = expr.slice(9, -2);
+            const parts = splitArgs(inner, ',');
+            const lambdaExpr = parts[0].trim();
+            const iterable = evalExpr(parts[1].trim());
+            // lambda x: expr
+            const lMatch = lambdaExpr.match(/lambda\s+(\w+)\s*:\s*(.+)/);
+            if (lMatch) {
+                const param = lMatch[1];
+                const body = lMatch[2];
+                return iterable.map(item => {
+                    vars[param] = item;
+                    return evalExpr(body);
+                });
+            }
+            return iterable;
+        }
+
+        // filter()
+        if (expr.startsWith('list(filter(')) {
+            const inner = expr.slice(12, -2);
+            const parts = splitArgs(inner, ',');
+            const lambdaExpr = parts[0].trim();
+            const iterable = evalExpr(parts[1].trim());
+            const lMatch = lambdaExpr.match(/lambda\s+(\w+)\s*:\s*(.+)/);
+            if (lMatch) {
+                const param = lMatch[1];
+                const cond = lMatch[2];
+                return iterable.filter(item => {
+                    vars[param] = item;
+                    return evalExpr(cond);
+                });
+            }
+            return iterable;
+        }
+
+        // math module
+        if (expr.startsWith('math.')) {
+            const func = expr.slice(5);
+            if (func === 'pi') return Math.PI;
+            if (func === 'e') return Math.E;
+            const m = func.match(/^(\w+)\((.+)\)$/);
+            if (m) {
+                const name = m[1], arg = evalExpr(m[2]);
+                if (name === 'sqrt') return Math.sqrt(arg);
+                if (name === 'ceil') return Math.ceil(arg);
+                if (name === 'floor') return Math.floor(arg);
+                if (name === 'pow') return Math.pow(arg, 1);
+                if (name === 'factorial') { let r = 1; for (let i = 2; i <= arg; i++) r *= i; return r; }
+            }
+        }
+
+        // random module
+        if (expr.startsWith('random.')) {
+            const func = expr.slice(7);
+            if (func.startsWith('seed(')) {
+                const seed = parseInt(func.slice(5, -1));
+                seededRand = mulberry32(seed);
+                return undefined;
+            }
+            if (func.startsWith('randint(')) {
+                const args = func.slice(8, -1).split(',').map(a => parseInt(a.trim()));
+                return Math.floor(seededRand() * (args[1] - args[0] + 1)) + args[0];
+            }
+            if (func === 'random()') return seededRand();
+        }
+
+        // String methods: var.method()
+        const strMethodMatch = expr.match(/^(\w+)\.(upper|lower|strip|title)\(\)$/);
+        if (strMethodMatch) {
+            const v = vars[strMethodMatch[1]];
+            if (typeof v === 'string') {
+                if (strMethodMatch[2] === 'upper') return v.toUpperCase();
+                if (strMethodMatch[2] === 'lower') return v.toLowerCase();
+                if (strMethodMatch[2] === 'strip') return v.trim();
+                if (strMethodMatch[2] === 'title') return v.replace(/\b\w/g, c => c.toUpperCase());
+            }
+        }
+
+        // Set operations: a & b, a | b, a - b
+        // We handle this via operator detection below
+
+        // Operators (check from lowest to highest precedence)
+        const ops = [
+            { op: ' or ', fn: (a,b) => a || b },
+            { op: ' and ', fn: (a,b) => a && b },
+            { op: '==', fn: (a,b) => a === b },
+            { op: '!=', fn: (a,b) => a !== b },
+            { op: '>=', fn: (a,b) => a >= b },
+            { op: '<=', fn: (a,b) => a <= b },
+            { op: '>', fn: (a,b) => a > b },
+            { op: '<', fn: (a,b) => a < b },
+            { op: '+', fn: (a,b) => {
+                if (Array.isArray(a) && Array.isArray(b)) return [...a, ...b];
+                if (a instanceof Set && b instanceof Set) return new Set([...a, ...b]);
+                return a + b;
+            }},
+            { op: '-', fn: (a,b) => {
+                if (a instanceof Set && b instanceof Set) {
+                    const r = new Set();
+                    for (const x of a) if (!b.has(x)) r.add(x);
+                    return r;
+                }
+                return a - b;
+            }},
+            { op: '*', fn: (a,b) => {
+                if (typeof a === 'string' && typeof b === 'number') return a.repeat(b);
+                if (typeof a === 'number' && typeof b === 'string') return b.repeat(a);
+                if (a instanceof Set && b instanceof Set) {
+                    const r = new Set();
+                    for (const x of a) if (b.has(x)) r.add(x);
+                    return r;
+                }
+                return a * b;
+            }},
+            { op: '/', fn: (a,b) => a / b },
+            { op: '//', fn: (a,b) => Math.floor(a / b) },
+            { op: '%', fn: (a,b) => a % b },
+            { op: '**', fn: (a,b) => Math.pow(a, b) },
+        ];
+
+        for (const { op, fn } of ops) {
+            const idx = findOp(expr, op);
+            if (idx !== -1) {
+                const left = evalExpr(expr.slice(0, idx));
+                const right = evalExpr(expr.slice(idx + op.length));
+                return fn(left, right);
+            }
+        }
+
+        // Variable access: var[idx]
+        const bracketMatch = expr.match(/^(\w+)\[(.+)\]$/);
+        if (bracketMatch) {
+            const varName = bracketMatch[1];
+            const idxExpr = bracketMatch[2];
+            const val = vars[varName];
+
+            // Slice
+            if (idxExpr.includes(':')) {
+                const parts = idxExpr.split(':');
+                const start = parts[0] ? evalExpr(parts[0]) : undefined;
+                const end = parts[1] !== '' && parts[1] !== undefined ? evalExpr(parts[1]) : undefined;
+                const step = parts[2] ? evalExpr(parts[2]) : undefined;
+                if (typeof val === 'string' || Array.isArray(val)) {
+                    return applySlice(val, start, end, step);
+                }
+            }
+
+            const idx = evalExpr(idxExpr);
+            if (typeof val === 'string' || Array.isArray(val)) {
+                const i = idx < 0 ? val.length + idx : idx;
+                return val[i];
+            }
+            if (val && val.__type === 'dict') return val.data[idx];
+        }
+
+        // Function call
+        const funcMatch = expr.match(/^(\w+)\((.*)?\)$/s);
+        if (funcMatch) {
+            const fname = funcMatch[1];
+            const argsStr = funcMatch[2];
+            if (funcs[fname]) {
+                const f = funcs[fname];
+                const args = argsStr ? splitArgs(argsStr, ',').map(a => evalExpr(a.trim())) : [];
+                const saved = {...vars};
+                for (let i = 0; i < f.params.length; i++) vars[f.params[i]] = args[i];
+                const result = execBlock(f.body);
+                Object.keys(vars).forEach(k => { if (!(k in saved)) delete vars[k]; });
+                Object.assign(vars, saved);
+                return result;
+            }
+        }
+
+        // Method call on object: obj.method(args)
+        const objMethodMatch = expr.match(/^(\w+)\.(\w+)\((.*)?\)$/s);
+        if (objMethodMatch) {
+            const objName = objMethodMatch[1];
+            const method = objMethodMatch[2];
+            const argsStr = objMethodMatch[3];
+            const obj = vars[objName];
+            if (obj && obj.__class__) {
+                const cls = classes[obj.__class__];
+                if (cls && cls.methods[method]) {
+                    const m = cls.methods[method];
+                    const args = argsStr ? splitArgs(argsStr, ',').map(a => evalExpr(a.trim())) : [];
+                    const saved = {...vars};
+                    // Set self attributes
+                    if (obj.attrs) Object.entries(obj.attrs).forEach(([k,v]) => vars[k] = v);
+                    for (let i = 0; i < m.params.length; i++) vars[m.params[i]] = args[i];
+                    execBlock(m.body);
+                    // Save back
+                    if (obj.attrs) Object.keys(obj.attrs).forEach(k => { if (k in vars) obj.attrs[k] = vars[k]; });
+                    Object.keys(vars).forEach(k => { if (!(k in saved)) delete vars[k]; });
+                    Object.assign(vars, saved);
+                    return undefined;
+                }
+            }
+        }
+
+        // Property access: obj.attr
+        const propMatch = expr.match(/^(\w+)\.(\w+)$/);
+        if (propMatch && vars[propMatch[1]]) {
+            const obj = vars[propMatch[1]];
+            if (obj.attrs && propMatch[2] in obj.attrs) return obj.attrs[propMatch[2]];
+        }
+
+        // Variable
+        if (expr in vars) return vars[expr];
+
+        return expr;
+    }
+
+    function evalListComp(inner) {
+        const m = inner.match(/^(.+?)\s+for\s+(\w+)\s+in\s+(.+?)(?:\s+if\s+(.+))?$/);
+        if (!m) return [];
+        const [, exprStr, varName, iterStr, condStr] = m;
+        const iterable = evalExpr(iterStr);
+        const result = [];
+        for (const item of iterable) {
+            vars[varName] = item;
+            if (condStr) {
+                if (evalExpr(condStr)) result.push(evalExpr(exprStr));
+            } else {
+                result.push(evalExpr(exprStr));
+            }
+        }
+        return result;
+    }
+
+    function findOp(expr, op) {
+        let depth = 0, inStr = false, strCh = '';
+        // For multi-char ops, search from left; for single, from right for left-assoc
+        if (op === '**') {
+            // Right-associative: find last
+            for (let i = expr.length - op.length; i >= 0; i--) {
+                // simplified: just find first from right at depth 0
+            }
+        }
+        for (let i = 0; i < expr.length; i++) {
+            const c = expr[i];
+            if (inStr) { if (c === strCh && expr[i-1] !== '\\') inStr = false; continue; }
+            if (c === '"' || c === "'") { inStr = true; strCh = c; continue; }
+            if ('([{'.includes(c)) { depth++; continue; }
+            if (')]}'.includes(c)) { depth--; continue; }
+            if (depth === 0 && expr.substr(i, op.length) === op) {
+                // Avoid matching substrings of longer operators
+                if (op === '>' && expr[i+1] === '=') continue;
+                if (op === '<' && expr[i+1] === '=') continue;
+                if (op === '*' && expr[i+1] === '*') continue;
+                if (op === '/' && expr[i+1] === '/') continue;
+                if (op === '=' && i > 0 && '!<>'.includes(expr[i-1])) continue;
+                if (op === '=' && expr[i+1] === '=') continue;
+                // Ensure not inside string or nested
+                if (i === 0 && (op === '-' || op === '+')) continue; // unary
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    function applySlice(val, start, end, step) {
+        const len = val.length;
+        let s = start !== undefined ? (start < 0 ? len + start : start) : (step && step < 0 ? len - 1 : 0);
+        let e = end !== undefined ? (end < 0 ? len + end : end) : (step && step < 0 ? -1 : len);
+        if (step && step < 0) {
+            if (typeof val === 'string') {
+                let r = '';
+                for (let i = s; i > e; i += step) r += val[i];
+                return r;
+            }
+            const r = [];
+            for (let i = s; i > e; i += step) r.push(val[i]);
+            return r;
+        }
+        if (step && step > 1) {
+            if (typeof val === 'string') {
+                let r = '';
+                for (let i = s; i < e; i += step) r += val[i];
+                return r;
+            }
+            const r = [];
+            for (let i = s; i < e; i += step) r.push(val[i]);
+            return r;
+        }
+        if (typeof val === 'string') return val.slice(s, e);
+        return val.slice(s, e);
+    }
+
+    function getIndent(line) {
+        return line.length - line.trimStart().length;
+    }
+
+    function execBlock(lines) {
+        let retVal = undefined;
+        let i = 0;
+        while (i < lines.length) {
+            const line = lines[i];
+            const trimmed = line.trim();
+            if (!trimmed || trimmed.startsWith('#')) { i++; continue; }
+
+            // return
+            if (trimmed.startsWith('return ')) {
+                return evalExpr(trimmed.slice(7));
+            }
+            if (trimmed === 'return') return undefined;
+
+            // print
+            if (trimmed.startsWith('print(') && trimmed.endsWith(')')) {
+                const inner = trimmed.slice(6, -1);
+                const args = splitArgs(inner, ',');
+                const vals = args.map(a => fmt(evalExpr(a.trim())));
+                output.push(vals.join(' '));
+                i++; continue;
+            }
+
+            // import
+            if (trimmed.startsWith('import ') || trimmed.startsWith('from ')) { i++; continue; }
+
+            // def
+            if (trimmed.startsWith('def ')) {
+                const m = trimmed.match(/def\s+(\w+)\(([^)]*)\)/);
+                if (m) {
+                    const fname = m[1];
+                    const params = m[2].split(',').map(p => p.trim().split('=')[0].trim()).filter(Boolean);
+                    const baseIndent = getIndent(line);
+                    const body = [];
+                    i++;
+                    while (i < lines.length) {
+                        const bl = lines[i];
+                        if (bl.trim() === '') { i++; continue; }
+                        if (getIndent(bl) <= baseIndent && bl.trim()) break;
+                        body.push(bl);
+                        i++;
+                    }
+                    funcs[fname] = { params, body };
+                    continue;
+                }
+            }
+
+            // class
+            if (trimmed.startsWith('class ')) {
+                const m = trimmed.match(/class\s+(\w+)(?:\((\w+)\))?/);
+                if (m) {
+                    const cname = m[1];
+                    const parent = m[2] || null;
+                    const baseIndent = getIndent(line);
+                    const cls = { parent, methods: {} };
+                    i++;
+                    while (i < lines.length) {
+                        const bl = lines[i];
+                        if (bl.trim() === '' || bl.trim().startsWith('#')) { i++; continue; }
+                        if (getIndent(bl) <= baseIndent && bl.trim()) break;
+                        const bt = bl.trim();
+                        if (bt.startsWith('def ')) {
+                            const mm = bt.match(/def\s+(\w+)\(([^)]*)\)/);
+                            if (mm) {
+                                const mname = mm[1];
+                                const params = mm[2].split(',').map(p => p.trim()).filter(p => p && p !== 'self');
+                                const mIndent = getIndent(bl);
+                                const mbody = [];
+                                i++;
+                                while (i < lines.length) {
+                                    const mb = lines[i];
+                                    if (mb.trim() === '') { i++; continue; }
+                                    if (getIndent(mb) <= mIndent && mb.trim()) break;
+                                    mbody.push(mb);
+                                    i++;
+                                }
+                                cls.methods[mname] = { params, body: mbody };
+                                continue;
+                            }
+                        }
+                        i++;
+                    }
+                    classes[cname] = cls;
+
+                    // Process instantiation and method calls that follow
+                    while (i < lines.length) {
+                        const nl = lines[i].trim();
+                        if (!nl) { i++; continue; }
+                        // Instantiation: obj = ClassName(args)
+                        const instM = nl.match(/^(\w+)\s*=\s*(\w+)\((.*)?\)$/);
+                        if (instM && classes[instM[2]]) {
+                            const objName = instM[1];
+                            const clsName = instM[2];
+                            const args = instM[3] ? splitArgs(instM[3], ',').map(a => evalExpr(a.trim())) : [];
+                            const obj = { __class__: clsName, attrs: {} };
+                            const c = classes[clsName];
+                            if (c.methods['__init__']) {
+                                const saved = {...vars};
+                                const params = c.methods['__init__'].params;
+                                for (let k = 0; k < params.length; k++) obj.attrs[params[k]] = args[k];
+                                // Execute init body with self attrs
+                                Object.entries(obj.attrs).forEach(([k,v]) => vars[k] = v);
+                                execBlock(c.methods['__init__'].body);
+                                // Save back
+                                Object.keys(vars).forEach(k => {
+                                    if (!(k in saved) || params.includes(k)) {
+                                        if (k in vars) obj.attrs[k] = vars[k];
+                                    }
+                                });
+                                Object.keys(vars).forEach(k => { if (!(k in saved)) delete vars[k]; });
+                                Object.assign(vars, saved);
+                            }
+                            vars[objName] = obj;
+                            i++; continue;
+                        }
+                        // Method call: obj.method(args)
+                        const callM = nl.match(/^(\w+)\.(\w+)\((.*)?\)$/);
+                        if (callM && vars[callM[1]] && vars[callM[1]].__class__) {
+                            const obj = vars[callM[1]];
+                            const c = classes[obj.__class__];
+                            const method = callM[2];
+                            const args = callM[3] ? splitArgs(callM[3], ',').map(a => evalExpr(a.trim())) : [];
+                            if (c.methods[method]) {
+                                const m = c.methods[method];
+                                const saved = {...vars};
+                                if (obj.attrs) Object.entries(obj.attrs).forEach(([k,v]) => vars[k] = v);
+                                for (let k = 0; k < m.params.length; k++) vars[m.params[k]] = args[k];
+                                execBlock(m.body);
+                                if (obj.attrs) Object.keys(obj.attrs).forEach(k => { if (k in vars) obj.attrs[k] = vars[k]; });
+                                Object.keys(vars).forEach(k => { if (!(k in saved)) delete vars[k]; });
+                                Object.assign(vars, saved);
+                            }
+                            i++; continue;
+                        }
+                        // Standalone method call returning value: print(obj.method())
+                        break;
+                    }
+                    continue;
+                }
+            }
+
+            // @decorator - skip
+            if (trimmed.startsWith('@')) { i++; continue; }
+
+            // with statement
+            if (trimmed.startsWith('with ')) {
+                const wm = trimmed.match(/with\s+(\w+)\(\)/);
+                if (wm && classes[wm[1]]) {
+                    const cls = classes[wm[1]];
+                    const baseIndent = getIndent(line);
+                    if (cls.methods['__enter__']) execBlock(cls.methods['__enter__'].body);
+                    i++;
+                    while (i < lines.length) {
+                        const bl = lines[i];
+                        if (bl.trim() === '') { i++; continue; }
+                        if (getIndent(bl) <= baseIndent && bl.trim()) break;
+                        // Execute body line
+                        const bt = bl.trim();
+                        if (bt.startsWith('print(') && bt.endsWith(')')) {
+                            const inner = bt.slice(6, -1);
+                            const args = splitArgs(inner, ',');
+                            const vals = args.map(a => fmt(evalExpr(a.trim())));
+                            output.push(vals.join(' '));
+                        }
+                        i++;
+                    }
+                    if (cls.methods['__exit__']) execBlock(cls.methods['__exit__'].body);
+                    continue;
+                }
+                i++; continue;
+            }
+
+            // for loop
+            if (trimmed.startsWith('for ')) {
+                const fm = trimmed.match(/for\s+(\w+)\s+in\s+(.+)/);
+                if (fm) {
+                    const varName = fm[1];
+                    const iterable = evalExpr(fm[2]);
+                    const baseIndent = getIndent(line);
+                    const body = [];
+                    i++;
+                    while (i < lines.length) {
+                        const bl = lines[i];
+                        if (bl.trim() === '') { i++; continue; }
+                        if (getIndent(bl) <= baseIndent && bl.trim()) break;
+                        body.push(bl);
+                        i++;
+                    }
+                    if (Array.isArray(iterable)) {
+                        for (const item of iterable) {
+                            vars[varName] = item;
+                            execBlock(body);
+                        }
+                    }
+                    continue;
+                }
+            }
+
+            // while loop
+            if (trimmed.startsWith('while ')) {
+                const cond = trimmed.slice(6);
+                const baseIndent = getIndent(line);
+                const body = [];
+                i++;
+                while (i < lines.length) {
+                    const bl = lines[i];
+                    if (bl.trim() === '') { i++; continue; }
+                    if (getIndent(bl) <= baseIndent && bl.trim()) break;
+                    body.push(bl);
+                    i++;
+                }
+                let iters = 0;
+                while (evalExpr(cond) && iters < 1000) {
+                    execBlock(body);
+                    iters++;
+                }
+                continue;
+            }
+
+            // if/elif/else
+            if (trimmed.startsWith('if ')) {
+                const cond = trimmed.slice(3);
+                const baseIndent = getIndent(line);
+                const body = [];
+                i++;
+                while (i < lines.length) {
+                    const bl = lines[i];
+                    if (bl.trim() === '') { i++; continue; }
+                    if (getIndent(bl) <= baseIndent && bl.trim()) break;
+                    body.push(bl);
+                    i++;
+                }
+                const condResult = evalExpr(cond);
+
+                // Collect elif/else blocks
+                const branches = [{ cond: condResult, body }];
+                while (i < lines.length) {
+                    const nl = lines[i]?.trim();
+                    if (!nl) { i++; continue; }
+                    if (nl.startsWith('elif ')) {
+                        const ec = nl.slice(5);
+                        const ebody = [];
+                        i++;
+                        while (i < lines.length) {
+                            const bl = lines[i];
+                            if (bl.trim() === '') { i++; continue; }
+                            if (getIndent(bl) <= baseIndent && bl.trim()) break;
+                            ebody.push(bl);
+                            i++;
+                        }
+                        branches.push({ cond: evalExpr(ec), body: ebody });
+                        continue;
+                    }
+                    if (nl === 'else:') {
+                        const ebody = [];
+                        i++;
+                        while (i < lines.length) {
+                            const bl = lines[i];
+                            if (bl.trim() === '') { i++; continue; }
+                            if (getIndent(bl) <= baseIndent && bl.trim()) break;
+                            ebody.push(bl);
+                            i++;
+                        }
+                        branches.push({ cond: true, body: ebody });
+                        continue;
+                    }
+                    break;
+                }
+
+                // Execute first true branch
+                for (const b of branches) {
+                    if (b.cond) {
+                        execBlock(b.body);
+                        break;
+                    }
+                }
+                continue;
+            }
+
+            // Assignment: var = expr
+            const eqIdx = findAssignIdx(trimmed);
+            if (eqIdx !== -1) {
+                const varName = trimmed.slice(0, eqIdx).trim();
+                const value = evalExpr(trimmed.slice(eqIdx + 1));
+                vars[varName] = value;
+                i++; continue;
+            }
+
+            // Augmented assignment
+            if (trimmed.includes('+=')) {
+                const parts = trimmed.split('+=');
+                vars[parts[0].trim()] = (vars[parts[0].trim()] || 0) + evalExpr(parts[1].trim());
+                i++; continue;
+            }
+            if (trimmed.includes('-=')) {
+                const parts = trimmed.split('-=');
+                vars[parts[0].trim()] = (vars[parts[0].trim()] || 0) - evalExpr(parts[1].trim());
+                i++; continue;
+            }
+
+            // Expression (function call, etc)
+            evalExpr(trimmed);
+            i++;
+        }
+        return retVal;
+    }
+
+    function findAssignIdx(line) {
+        let depth = 0, inStr = false, strCh = '';
+        for (let i = 0; i < line.length; i++) {
+            const c = line[i];
+            if (inStr) { if (c === strCh && line[i-1] !== '\\') inStr = false; continue; }
+            if (c === '"' || c === "'") { inStr = true; strCh = c; continue; }
+            if ('([{'.includes(c)) depth++;
+            if (')]}'.includes(c)) depth--;
+            if (depth === 0 && c === '=') {
+                if (line[i+1] === '=') continue;
+                if (i > 0 && '!<>'.includes(line[i-1])) continue;
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // Execute
+    try {
+        execBlock(code.split('\n'));
+    } catch (e) {
+        output.push(`Error: ${e.message}`);
+    }
+    return output.join('\n');
+}
+
+// ==================== UI FUNCTIONS ====================
+function getAllLessons() {
+    const all = [];
+    COURSE.forEach((s, si) => s.lessons.forEach((l, li) => all.push({ ...l, si, li, section: s })));
+    return all;
+}
+
+function getTotalLessons() {
+    return COURSE.reduce((a, s) => a + s.lessons.length, 0);
+}
+
+function getCurrentLesson() {
+    return COURSE[currentSection].lessons[currentLesson];
+}
+
+function renderSidebar() {
+    const container = document.getElementById('sidebarContent');
+    let html = '';
+    COURSE.forEach((section, si) => {
+        const doneCount = section.lessons.filter(l => completed.has(section.id + '/' + l.id)).length;
+        const allDone = doneCount === section.lessons.length;
+        const isActive = si === currentSection;
+        html += `<div class="section-group">
+            <button class="section-btn ${isActive ? 'active' : ''}" onclick="toggleSection(${si})">
+                <span class="icon">${section.icon}</span>
+                <span>${section.title}</span>
+                <span class="badge ${allDone ? 'done' : ''}">${doneCount}/${section.lessons.length}</span>
+            </button>
+            <div class="lesson-list ${isActive ? 'open' : ''}" id="lessons-${si}">`;
+        section.lessons.forEach((lesson, li) => {
+            const lid = section.id + '/' + lesson.id;
+            const isDone = completed.has(lid);
+            const isCurrent = si === currentSection && li === currentLesson;
+            html += `<div class="lesson-item ${isCurrent ? 'active' : ''} ${isDone ? 'done' : ''}" onclick="selectLesson(${si}, ${li})">
+                <span class="check">${isDone ? '✓' : ''}</span>
+                <span>${lesson.title}</span>
+            </div>`;
+        });
+        html += `</div></div>`;
+    });
+    container.innerHTML = html;
+}
+
+function toggleSection(si) {
+    const el = document.getElementById('lessons-' + si);
+    if (el) el.classList.toggle('open');
+    // Update active states
+    document.querySelectorAll('.section-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === si);
+    });
+}
+
+function selectLesson(si, li) {
+    currentSection = si;
+    currentLesson = li;
+    renderSidebar();
+    renderLesson();
+    if (window.innerWidth < 768) toggleSidebar();
+}
+
+function renderLesson() {
+    const lesson = getCurrentLesson();
+    const section = COURSE[currentSection];
+    const panel = document.getElementById('lessonPanel');
+
+    document.getElementById('codeEditor').value = lesson.code;
+    document.getElementById('outputBody').textContent = 'Нажмите «Запустить» для выполнения кода...';
+    document.getElementById('outputStatus').textContent = '';
+    document.getElementById('outputStatus').className = 'output-status';
+    document.getElementById('hintBox').textContent = lesson.hint;
+    document.getElementById('hintBox').classList.remove('show');
+    hintVisible = false;
+
+    const contentHtml = renderMarkdown(lesson.content);
+
+    panel.innerHTML = `
+        <div class="lesson-breadcrumb">
+            <span>${section.icon} ${section.title}</span>
+            <span class="sep">›</span>
+            <span class="current">${lesson.title}</span>
+        </div>
+        <h1 class="lesson-title">${lesson.title}</h1>
+        <p class="lesson-desc">${lesson.desc}</p>
+        <div class="lesson-content">${contentHtml}</div>
+        <div class="task-box">
+            <h3>📋 Задание</h3>
+            <p>Напишите код в редакторе справа и нажмите <strong>«Проверить»</strong>.</p>
+        </div>
+        <div class="lesson-nav">
+            <button class="btn-nav btn-prev" onclick="prevLesson()">← Предыдущий</button>
+            <button class="btn-nav btn-next" onclick="nextLesson()">Следующий →</button>
+        </div>
+    `;
+}
+
+function renderMarkdown(text) {
+    let html = '';
+    const lines = text.split('\n');
+    let inCode = false, codeBuf = '';
+
+    for (const line of lines) {
+        if (line.startsWith('```')) {
+            if (inCode) {
+                html += `<pre><code>${escapeHtml(codeBuf.trim())}</code></pre>`;
+                codeBuf = '';
+                inCode = false;
+            } else {
+                inCode = true;
+            }
+            continue;
+        }
+        if (inCode) { codeBuf += line + '\n'; continue; }
+
+        if (line.startsWith('# ')) html += `<h1>${inlineFormat(line.slice(2))}</h1>`;
+        else if (line.startsWith('## ')) html += `<h2>${inlineFormat(line.slice(3))}</h2>`;
+        else if (line.startsWith('### ')) html += `<h3>${inlineFormat(line.slice(4))}</h3>`;
+        else if (line.startsWith('- ')) html += `<li>${inlineFormat(line.slice(2))}</li>`;
+        else if (line.trim() === '') html += '<br>';
+        else html += `<p>${inlineFormat(line)}</p>`;
+    }
+    return html;
+}
+
+function inlineFormat(text) {
+    return text
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function runCode() {
+    const code = document.getElementById('codeEditor').value;
+    document.getElementById('outputBody').textContent = 'Выполнение...';
+    document.getElementById('outputStatus').textContent = '';
+    setTimeout(() => {
+        const result = simulatePython(code);
+        document.getElementById('outputBody').textContent = result || '(нет вывода)';
+    }, 200);
+}
+
+function checkAnswer() {
+    const lesson = getCurrentLesson();
+    const code = document.getElementById('codeEditor').value;
+    const result = simulatePython(code);
+    document.getElementById('outputBody').textContent = result || '(нет вывода)';
+
+    const status = document.getElementById('outputStatus');
+    if (result.trim() === lesson.expected.trim()) {
+        status.textContent = '✅ Верно!';
+        status.className = 'output-status pass';
+        const lid = COURSE[currentSection].id + '/' + lesson.id;
+        if (!completed.has(lid)) {
+            completed.add(lid);
+            localStorage.setItem('pylearn_done', JSON.stringify([...completed]));
+        }
+        updateProgress();
+        renderSidebar();
+    } else {
+        status.textContent = '❌ Неверно';
+        status.className = 'output-status fail';
+    }
+}
+
+function resetCode() {
+    document.getElementById('codeEditor').value = getCurrentLesson().code;
+    document.getElementById('outputBody').textContent = 'Нажмите «Запустить» для выполнения кода...';
+    document.getElementById('outputStatus').textContent = '';
+}
+
+function toggleHint() {
+    hintVisible = !hintVisible;
+    document.getElementById('hintBox').classList.toggle('show', hintVisible);
+}
+
+function nextLesson() {
+    let si = currentSection, li = currentLesson + 1;
+    if (li >= COURSE[si].lessons.length) { si++; li = 0; }
+    if (si >= COURSE.length) { showCertificate(); return; }
+    selectLesson(si, li);
+}
+
+function prevLesson() {
+    let si = currentSection, li = currentLesson - 1;
+    if (li < 0) { si--; if (si < 0) return; li = COURSE[si].lessons.length - 1; }
+    selectLesson(si, li);
+}
+
+function updateProgress() {
+    const total = getTotalLessons();
+    const done = completed.size;
+    const pct = Math.round((done / total) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = `${done} / ${total} уроков`;
+    document.getElementById('btnCert').style.display = done === total ? 'inline-block' : 'none';
+}
+
+function showCertificate() {
+    document.getElementById('certDate').textContent = new Date().toLocaleDateString('ru-RU');
+    document.getElementById('certModal').classList.add('show');
+}
+
+function closeCertModal() {
+    document.getElementById('certModal').classList.remove('show');
+}
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+
+// ==================== INIT ====================
+function showWelcome() {
+    const panel = document.getElementById('lessonPanel');
+    const total = getTotalLessons();
+    const sections = COURSE.length;
+    panel.innerHTML = `
+        <div class="welcome">
+            <h1>Добро пожаловать в <span>PyLearn</span></h1>
+            <p>Бесплатный интерактивный курс Python. Учитесь программировать с нуля — от основ до продвинутых тем.</p>
+            <div class="welcome-stats">
+                <div class="stat"><div class="stat-num">${sections}</div><div class="stat-label">Разделов</div></div>
+                <div class="stat"><div class="stat-num">${total}</div><div class="stat-label">Уроков</div></div>
+                <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Бесплатно</div></div>
+            </div>
+            <button class="btn-start" onclick="selectLesson(0, 0)">🚀 Начать обучение</button>
+        </div>
+    `;
+}
+
+// Tab support in textarea
+document.getElementById('codeEditor').addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 4;
+    }
+});
+
+// Initialize
+renderSidebar();
+updateProgress();
+if (completed.size > 0) {
+    // Find first incomplete lesson or show last viewed
+    selectLesson(0, 0);
+} else {
+    showWelcome();
+}
+</script>
+</body>
+</html>
